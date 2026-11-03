@@ -1,0 +1,277 @@
+-- Q1
+CREATE DATABASE employee;
+USE employee;
+
+-- Q3
+SELECT
+
+EMP_ID,
+FIRST_NAME,
+LAST_NAME,
+GENDER,
+DEPT
+
+FROM emp_record_table;
+
+-- Q4
+SELECT *
+
+FROM emp_record_table
+
+WHERE EMP_RATING < 2;
+
+SELECT *
+
+FROM emp_record_table
+
+WHERE EMP_RATING > 4;
+
+SELECT *
+
+FROM emp_record_table
+
+WHERE EMP_RATING BETWEEN 2 AND 4;
+
+-- Q5
+SELECT
+
+CONCAT(FIRST_NAME,' ',LAST_NAME) AS NAME
+
+FROM emp_record_table
+
+WHERE DEPT='FINANCE';
+
+-- Q6
+SELECT
+
+e.EMP_ID,
+e.FIRST_NAME,
+e.LAST_NAME,
+
+COUNT(r.EMP_ID) AS NUMBER_OF_REPORTERS
+
+FROM emp_record_table e
+
+JOIN emp_record_table r
+
+ON e.EMP_ID = r.MANAGER_ID
+
+GROUP BY
+
+e.EMP_ID,
+e.FIRST_NAME,
+e.LAST_NAME;
+
+-- Q7
+SELECT *
+FROM emp_record_table
+WHERE DEPT='HEALTHCARE'
+
+UNION
+
+SELECT *
+FROM emp_record_table
+WHERE DEPT='FINANCE';
+
+-- Q8
+SELECT
+
+EMP_ID,
+FIRST_NAME,
+LAST_NAME,
+ROLE,
+DEPT,
+EMP_RATING,
+
+MAX(EMP_RATING)
+OVER(PARTITION BY DEPT)
+
+AS MAX_DEPT_RATING
+
+FROM emp_record_table;
+
+-- Q9
+SELECT
+
+ROLE,
+
+MIN(SALARY) AS MINIMUM_SALARY,
+
+MAX(SALARY) AS MAXIMUM_SALARY
+
+FROM emp_record_table
+
+GROUP BY ROLE;
+
+-- Q10
+SELECT
+
+EMP_ID,
+
+FIRST_NAME,
+
+LAST_NAME,
+
+EXP,
+
+RANK() OVER
+(
+ORDER BY EXP DESC
+)
+
+AS EXPERIENCE_RANK
+
+FROM emp_record_table;
+
+-- Q11
+CREATE OR REPLACE VIEW HIGH_SALARY_EMPLOYEES AS
+
+SELECT *
+
+FROM emp_record_table
+
+WHERE SALARY > 6000;
+
+SELECT *
+FROM HIGH_SALARY_EMPLOYEES;
+
+
+-- Q12
+SELECT *
+
+FROM emp_record_table
+
+WHERE EMP_ID IN
+
+(
+SELECT EMP_ID
+
+FROM emp_record_table
+
+WHERE EXP > 10
+);
+
+-- Q13
+DELIMITER $$
+
+CREATE PROCEDURE ExperiencedEmployees()
+
+BEGIN
+
+SELECT *
+
+FROM emp_record_table
+
+WHERE EXP > 3;
+
+END $$
+
+DELIMITER ;
+
+CALL ExperiencedEmployees();
+
+-- Q14
+DELIMITER $$
+
+CREATE FUNCTION ValidateRole
+(
+exp_years INT
+)
+
+RETURNS VARCHAR(50)
+
+DETERMINISTIC
+
+BEGIN
+
+RETURN
+
+CASE
+
+WHEN exp_years <= 2
+THEN 'JUNIOR DATA SCIENTIST'
+
+WHEN exp_years > 2
+AND exp_years <= 5
+THEN 'ASSOCIATE DATA SCIENTIST'
+
+WHEN exp_years > 5
+AND exp_years <= 10
+THEN 'SENIOR DATA SCIENTIST'
+
+WHEN exp_years > 10
+AND exp_years <= 12
+THEN 'LEAD DATA SCIENTIST'
+
+WHEN exp_years > 12
+AND exp_years <= 16
+THEN 'MANAGER'
+
+ELSE 'INVALID ROLE'
+
+END;
+
+END $$
+
+DELIMITER ;
+
+SELECT
+
+EMP_ID,
+
+FIRST_NAME,
+
+ROLE AS CURRENT_ROLE,
+
+ValidateRole(EXP)
+AS STANDARD_ROLE
+
+FROM data_science_team;
+
+-- Q15
+EXPLAIN
+
+SELECT *
+
+FROM emp_record_table
+
+WHERE FIRST_NAME='Eric';
+
+CREATE INDEX idx_first_name
+ON emp_record_table(FIRST_NAME(50));
+
+-- Q16
+SELECT
+
+EMP_ID,
+
+FIRST_NAME,
+
+SALARY,
+
+EMP_RATING,
+
+(SALARY * 0.05 * EMP_RATING)
+
+AS BONUS
+
+FROM emp_record_table;
+
+-- Q17
+SELECT
+
+CONTINENT,
+
+COUNTRY,
+
+AVG(SALARY)
+
+AS AVERAGE_SALARY
+
+FROM emp_record_table
+
+GROUP BY
+
+CONTINENT,
+COUNTRY;
+
